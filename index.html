@@ -11,6 +11,7 @@
     button { margin: 10px; padding: 10px 20px; }
     table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 5px; }
     table { margin-top: 20px; width: 100%; }
+    input { padding: 5px; width: 300px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -20,6 +21,10 @@
   <button onclick="loadDataset('eksternal')">Tampilkan Data Eksternal</button>
   <button onclick="loadDataset('internal')">Tampilkan Data Internal</button>
 </div>
+
+<label for="instansiFilter">Filter Instansi:</label><br>
+<input list="instansiList" id="instansiFilter" placeholder="Ketik nama instansi..." oninput="applyFilter()">
+<datalist id="instansiList"></datalist>
 
 <p id="status">Memuat data...</p>
 <table id="data-table">
@@ -36,6 +41,8 @@ var urlMap = {
 };
 
 var chartInstance = null;
+var allData = [];
+var currentData = [];
 
 function loadDataset(type) {
   document.getElementById('status').innerText = 'Memuat data ' + type + '...';
@@ -44,12 +51,27 @@ function loadDataset(type) {
     header: true,
     dynamicTyping: true,
     complete: function(results) {
-      const data = results.data;
-      renderTable(data);
-      renderChart(data);
+      allData = results.data;
+      currentData = allData;
+      populateInstansiList(allData);
+      renderTable(currentData);
+      renderChart(currentData);
       document.getElementById('status').innerText = 'Menampilkan data ' + type;
     }
   });
+}
+
+function populateInstansiList(data) {
+  const instansiList = document.getElementById('instansiList');
+  const unique = [...new Set(data.map(d => d.instansi).filter(d => d))].sort();
+  instansiList.innerHTML = unique.map(d => `<option value="${d}">`).join('');
+}
+
+function applyFilter() {
+  const keyword = document.getElementById('instansiFilter').value.toLowerCase();
+  currentData = allData.filter(d => (d.instansi || '').toLowerCase().includes(keyword));
+  renderTable(currentData);
+  renderChart(currentData);
 }
 
 function renderTable(data) {
@@ -60,7 +82,7 @@ function renderTable(data) {
 
   if (data.length === 0) return;
 
-  const headers = Object.keys(data[0]);
+  const headers = ['instansi', 'target', 'data_blast', 'persentase_capaian_target', 'persentase_response_rate_online', 'jumlah_capi'];
   const headerRow = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
   head.innerHTML = headerRow;
 
@@ -72,8 +94,8 @@ function renderTable(data) {
 
 function renderChart(data) {
   const ctx = document.getElementById('chart').getContext('2d');
-  const labels = data.map(d => d.NAMA_UNIT_KERJA || d.NAMA_INSTANSI || '');
-  const values = data.map(d => parseFloat(d.persentase_capaian_target || d.Value || 0));
+  const labels = data.map(d => d.instansi || '');
+  const values = data.map(d => parseFloat(d.persentase_capaian_target || 0));
 
   if (chartInstance) {
     chartInstance.destroy();
