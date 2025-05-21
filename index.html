@@ -30,12 +30,12 @@
 <canvas id="chart" width="400" height="150"></canvas>
 
 <script>
-const urlMap = {{
-  eksternal: 'https://raw.githubusercontent.com/timotiushps/tesdashboardspi24/main/rekap_response_rate_eksternal_total_only.csv',
-  internal: 'https://raw.githubusercontent.com/timotiushps/tesdashboardspi24/main/rekap_response_rate_internal_total_only.csv'
+var urlMap = {{
+  "eksternal": "https://raw.githubusercontent.com/timotiushps/tesdashboardspi24/main/rekap_response_rate_eksternal_total_only.csv",
+  "internal": "https://raw.githubusercontent.com/timotiushps/tesdashboardspi24/main/rekap_response_rate_internal_total_only.csv"
 }};
 
-let chartInstance = null;
+var chartInstance = null;
 
 function loadDataset(type) {{
   document.getElementById('status').innerText = 'Memuat data ' + type + '...';
@@ -61,11 +61,11 @@ function renderTable(data) {{
   if (data.length === 0) return;
 
   const headers = Object.keys(data[0]);
-  const headerRow = '<tr>' + headers.map(h => `<th>${{h}}</th>`).join('') + '</tr>';
+  const headerRow = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
   head.innerHTML = headerRow;
 
   data.forEach(row => {{
-    const rowHtml = '<tr>' + headers.map(h => `<td>${{row[h] !== undefined ? row[h] : ''}}</td>`).join('') + '</tr>';
+    const rowHtml = '<tr>' + headers.map(h => '<td>' + (row[h] !== undefined ? row[h] : '') + '</td>').join('') + '</tr>';
     body.innerHTML += rowHtml;
   }});
 }}
