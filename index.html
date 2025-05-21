@@ -7,10 +7,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
   <style>
-    body {{ font-family: Arial, sans-serif; margin: 20px; }}
-    button {{ margin: 10px; padding: 10px 20px; }}
-    table, th, td {{ border: 1px solid #ccc; border-collapse: collapse; padding: 5px; }}
-    table {{ margin-top: 20px; width: 100%; }}
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    button { margin: 10px; padding: 10px 20px; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 5px; }
+    table { margin-top: 20px; width: 100%; }
   </style>
 </head>
 <body>
@@ -30,29 +30,29 @@
 <canvas id="chart" width="400" height="150"></canvas>
 
 <script>
-var urlMap = {{
+var urlMap = {
   "eksternal": "https://raw.githubusercontent.com/timotiushps/tesdashboardspi24/main/rekap_response_rate_eksternal_total_only.csv",
   "internal": "https://raw.githubusercontent.com/timotiushps/tesdashboardspi24/main/rekap_response_rate_internal_total_only.csv"
-}};
+};
 
 var chartInstance = null;
 
-function loadDataset(type) {{
+function loadDataset(type) {
   document.getElementById('status').innerText = 'Memuat data ' + type + '...';
-  Papa.parse(urlMap[type], {{
+  Papa.parse(urlMap[type], {
     download: true,
     header: true,
     dynamicTyping: true,
-    complete: function(results) {{
+    complete: function(results) {
       const data = results.data;
       renderTable(data);
       renderChart(data);
       document.getElementById('status').innerText = 'Menampilkan data ' + type;
-    }}
-  }});
-}}
+    }
+  });
+}
 
-function renderTable(data) {{
+function renderTable(data) {
   const head = document.getElementById('table-head');
   const body = document.getElementById('table-body');
   head.innerHTML = '';
@@ -64,51 +64,51 @@ function renderTable(data) {{
   const headerRow = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
   head.innerHTML = headerRow;
 
-  data.forEach(row => {{
+  data.forEach(row => {
     const rowHtml = '<tr>' + headers.map(h => '<td>' + (row[h] !== undefined ? row[h] : '') + '</td>').join('') + '</tr>';
     body.innerHTML += rowHtml;
-  }});
-}}
+  });
+}
 
-function renderChart(data) {{
+function renderChart(data) {
   const ctx = document.getElementById('chart').getContext('2d');
   const labels = data.map(d => d.NAMA_UNIT_KERJA || d.NAMA_INSTANSI || '');
   const values = data.map(d => parseFloat(d.persentase_capaian_target || d.Value || 0));
 
-  if (chartInstance) {{
+  if (chartInstance) {
     chartInstance.destroy();
-  }}
+  }
 
-  chartInstance = new Chart(ctx, {{
+  chartInstance = new Chart(ctx, {
     type: 'bar',
-    data: {{
+    data: {
       labels: labels,
-      datasets: [{{
+      datasets: [{
         label: 'Capaian Target',
         data: values,
         backgroundColor: 'rgba(75, 192, 192, 0.6)'
-      }}]
-    }},
-    options: {{
+      }]
+    },
+    options: {
       responsive: true,
-      plugins: {{
-        legend: {{
+      plugins: {
+        legend: {
           display: true
-        }}
-      }},
-      scales: {{
-        y: {{
+        }
+      },
+      scales: {
+        y: {
           beginAtZero: true,
           max: 100
-        }}
-      }}
-    }}
-  }});
-}}
+        }
+      }
+    }
+  });
+}
 
-window.onload = function() {{
+window.onload = function() {
   loadDataset('eksternal');
-}};
+};
 </script>
 </body>
 </html>
