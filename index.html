@@ -46,10 +46,10 @@
     <tbody id="table-body"></tbody>
   </table>
 
-  <div class="chart-container">
+  <div class="chart-container" style="page-break-before: always;">
     <canvas id="chartCapaian" width="400" height="150"></canvas>
   </div>
-  <div class="chart-container">
+  <div class="chart-container" style="page-break-before: always;">
     <canvas id="chartResponse" width="400" height="150"></canvas>
   </div>
 
@@ -196,14 +196,23 @@ function downloadExcel() {
 function downloadPDF() {
   const element = document.getElementById("dashboard-content");
   const instansi = document.getElementById("instansiFilter").value || "ALL";
-  html2pdf()
-    .from(element)
+  
+const opt = {
+  margin: [0, 0, 0, 0],
+  filename: `DATA_RESPONSE_RATE_2024_${instansi.replace(/\s+/g, "_")}.pdf`,
+  image: { type: "jpeg", quality: 0.98 },
+  html2canvas: { scale: 2, scrollY: 0 },
+  jsPDF: { unit: "mm", format: "a4", orientation: "landscape" },
+  pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+};
+html2pdf().set(opt).from(element)
+
     .set({
       margin: 0.5,
       filename: `DATA_RESPONSE_RATE_2024_${instansi.replace(/\s+/g, "_")}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: "in", format: "a4", orientation: "portrait" }
+      jsPDF: { unit: "in", format: "a4", orientation: "landscape" }
     })
     .save();
 }
