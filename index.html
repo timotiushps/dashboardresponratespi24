@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -41,9 +40,6 @@
   <label for="instansiFilter">Filter Instansi:</label><br>
   <input list="instansiList" id="instansiFilter" placeholder="Ketik nama instansi..." oninput="applyFilter()">
   <datalist id="instansiList"></datalist><br>
-  
-
-
 
   <p id="status">Memuat data...</p>
   <table id="data-table">
@@ -75,6 +71,7 @@ var chartCapaian = null;
 var chartResponse = null;
 var allData = [];
 var filteredData = [];
+var currentType = 'eksternal';
 
 const columnMap = {
   instansi: "Instansi",
@@ -94,6 +91,7 @@ function formatNumber(n) {
 }
 
 function loadDataset(type) {
+  currentType = type;
   document.getElementById('status').innerText = 'Memuat data ' + type + '...';
   Papa.parse(urlMap[type], {
     download: true,
@@ -119,21 +117,16 @@ function resetFilterUnit() {
   document.getElementById('instansiFilter').value = '';
   filteredData = allData;
   renderTable(filteredData);
-    renderChart(filteredData);
-  
+  renderChart(filteredData, currentType);
   populateInstansiList(allData);
 }
-
-
 
 function applyFilter() {
   const keyword = document.getElementById('instansiFilter').value.toLowerCase();
   filteredData = allData.filter(d => (d.instansi || '').toLowerCase() === keyword);
 
   renderTable(filteredData);
-    renderChart(filteredData);
-  
-
+  renderChart(filteredData, currentType);
 }
 
 function renderTable(data) {
@@ -159,7 +152,7 @@ function renderTable(data) {
   });
 }
 
-function renderChart(data) {
+function renderChart(data, type) {
   const labels = data.map(d => d.unitkerja || '');
   const capaian = data.map(d => parseFloat(d.persentase_capaian_target || 0));
   const response = data.map(d => parseFloat(d.persentase_response_rate_online || 0));
@@ -171,6 +164,23 @@ function renderChart(data) {
     borderColor: 'black',
     borderWidth: 1
   };
+
+  const lineResponse = {
+    type: 'line',
+    borderColor: 'black',
+    borderWidth: 1
+  };
+
+  if (type === 'eksternal') {
+    lineResponse.yMin = 11.36;
+    lineResponse.yMax = 11.36;
+  } else if (type === 'internal') {
+    lineResponse.yMin = 32.13;
+    lineResponse.yMax = 32.13;
+  } else {
+    lineResponse.yMin = 0;
+    lineResponse.yMax = 0;
+  }
 
   if (chartCapaian) chartCapaian.destroy();
   if (chartResponse) chartResponse.destroy();
@@ -209,7 +219,7 @@ function renderChart(data) {
       responsive: true,
       animation: { duration: 800 },
       plugins: {
-        annotation: { annotations: { line100 } }
+        annotation: { annotations: { lineResponse } }
       },
       scales: { y: { beginAtZero: true } }
     }
