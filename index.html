@@ -19,7 +19,6 @@
     footer { text-align: center; margin-top: 40px; font-size: 0.9em; color: #555; }
     .logo { height: 60px; }
     .chart-container { margin-top: 30px; page-break-before: always; }
-
     /* Tombol Modern */
     .top-buttons {
       display: flex;
@@ -40,6 +39,7 @@
       border: none;
       outline: none;
       display: inline-block;
+      background: #aaa;
     }
     .top-buttons a.response-rate-btn {
       background: linear-gradient(45deg, #ff6a00, #ee0979);
@@ -47,7 +47,10 @@
     .top-buttons a.indeks-btn {
       background: linear-gradient(45deg, #2193b0, #6dd5ed);
     }
-    .top-buttons a:hover {
+    .top-buttons a.risiko-btn {
+      background: linear-gradient(45deg, #b06ab3, #4568dc);
+    }
+    .top-buttons a:hover, .top-buttons a:focus {
       box-shadow: 0 6px 20px rgba(0,0,0,0.35);
       transform: translateY(-3px);
     }
@@ -73,10 +76,11 @@
 </head>
 <body>
 
-<!-- Tambahkan tombol modern di paling atas -->
+<!-- Tombol Modern (tidak membuka tab baru) -->
 <div class="top-buttons">
   <a href="https://timotiushps.github.io/dashboardresponratespi24/" class="response-rate-btn">Response Rate</a>
   <a href="https://timotiushps.github.io/hasilspi24/" class="indeks-btn">Indeks</a>
+  <a href="https://timotiushps.github.io/hasilspi24/risiko" class="risiko-btn">Tabel Risiko</a>
 </div>
 
 <div id="dashboard-content">
@@ -109,7 +113,6 @@
   <div class="chart-container">
     <canvas id="chartResponse" width="900" height="400"></canvas>
   </div>
-
 </div>
 
 <script>
@@ -280,14 +283,30 @@ function renderChart(data, type) {
 }
 
 function downloadExcel() {
-  if (!filteredData.length) return;
-  const exportData = filteredData.map(row => {
-    const r = {};
-    exportColumns.forEach(k => r[columnMap[k]] = row[k]);
-    return r;
-  });
-  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  if (!allData.length) return;
   const instansi = document.getElementById('instansiFilter').value || 'ALL';
+
+  let exportData;
+  if (instansi === "SELURUH K/L/PD PESERTA SPI 2024") {
+    // Filter hanya yang Unit Kerja-nya SELURUH K/L/PD PESERTA SPI 2024 dan Total
+    exportData = allData.filter(row =>
+      (row.unitkerja === "SELURUH K/L/PD PESERTA SPI 2024" || row.unitkerja === "Total")
+    ).map(row => {
+      const r = {};
+      exportColumns.forEach(k => r[columnMap[k]] = row[k]);
+      return r;
+    });
+  } else {
+    if (!filteredData.length) return;
+    exportData = filteredData.map(row => {
+      const r = {};
+      exportColumns.forEach(k => r[columnMap[k]] = row[k]);
+      return r;
+    });
+  }
+
+  if (!exportData.length) return;
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "DATA");
   XLSX.writeFile(workbook, `DATA_RESPONSE_RATE_2024_${instansi.replace(/\s+/g, "_")}.xlsx`);
@@ -314,6 +333,6 @@ window.onload = function() {
 };
 </script>
 
-<footer class="text-center small text-muted mt-5 mb-3">v1.0206252245<br>© Tim SPI 2025 KPK RI</footer>  
+<footer class="text-center small text-muted mt-5 mb-3">v1.0306252330<br>© Tim SPI 2025 KPK RI</footer>  
 </body>
 </html>
